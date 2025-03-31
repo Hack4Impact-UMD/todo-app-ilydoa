@@ -45,6 +45,19 @@ function App() {
   const addTask = () => {
     // START EDITING
     // END EDITING
+    if (title) {
+      const newTask = {
+        id: uuidv4(),
+        title: title,
+        description: description,
+        completed: false,
+        dueDate: dueDate
+      }
+      setTasks([...tasks, newTask])
+      setTitle("")
+      setDescription("")
+      setDueDate("")
+    }
   };
 
   /*
@@ -60,8 +73,12 @@ function App() {
     HINT HINT NUDGE NUDGE: I'm getting some Week 4 HW flashbacks...are you?
   */
   const toggleCompletion = (id) => {
-    // START EDITING
-    // END EDITING
+    setTasks(prevTasks => prevTasks.map(task => {
+      if (task.id == id) {
+        return { ...task, completed: !task.completed } 
+      }
+      return task;
+    }))
   };
   
   /*
@@ -97,6 +114,11 @@ function App() {
   */
   const calculateProgress = () => {
     // START EDITING
+    if (tasks.length == 0) {
+      return 0;
+    }
+    const completedTaskCount = tasks.filter(task => task.completed == true).length;
+    return (completedTaskCount / (tasks.length * 100));
     // END EDITING
   };
 
@@ -104,28 +126,39 @@ function App() {
     <div id="main-container">
       <h1>Task Manager</h1>
       <div className="text-fields">
-        {/* 
-        PROBLEM 1: Linking TextFields to their corresponding state variables.
+        {/* PROBLEM 1: Linking TextFields to their corresponding state variables.
 
         For each of the three TextFields below:
         - Set the value prop equal to the title/description/dueDate state variable
         - Set the onChange prop equal to a function (e.g. an anonymous arrow f'n), where all
           it does is call setTitle/setDescription/setDueDate to the e.target.value. SEE THE SLIDE
-          "Event handlers with a parameter" from class FOR MORE INFO.
-        */}
+          "Event handlers with a parameter" from class FOR MORE INFO.*/
+        }
         <TextField
           required
           label="Title"
+          value = {title}
+          onChange = {(e) => {
+            setTitle(e.target.value);
+          }}
         />
         <TextField
           label="Description"
+          value = {description}
+          onChange = {(e) => {
+            setDescription(e.target.value);
+          }}
         />
         <TextField
           label="Due Date"
           type="date"
           InputLabelProps={{ shrink: true }}
+          value = {dueDate}
+          onChange = {(e) => {
+            setDueDate(e.target.value);
+          }}
         />
-        <Button variant="contained">
+        <Button variant="contained" onClick={addTask}>
           Add Task
         </Button>
       </div>
@@ -141,6 +174,7 @@ function App() {
       <LinearProgress
         variant="determinate"
         sx={{ width: "100%", height: 10, borderRadius: 5, marginBottom: 2 }}
+        value = {calculateProgress}
       />
       <TaskTable 
         tasks={incompleteOnly ? tasks.filter((task) => !task.completed) : tasks } 
